@@ -92,4 +92,41 @@ object DataFrameBasics extends App {
   manualCarsDF.printSchema() // no colnames
   manualCarsDFWithImplicits.printSchema()
 
+
+  /*
+  * Exercises:
+  * 1) Create a manual DF describing smartphones
+  *   - make
+  *   - model
+  *   - screen dimensions
+  *   - camera megapixels
+  *
+  * 2) Read another file from data/ folder
+  *   - print its schema
+  *   - count the num of rows (using count method)
+  *
+  * */
+
+  // Ex1
+  val phones = Seq(
+    ("samsung", "s8", "2560x1440", 10.4),
+    ("apple", "iphone", "1920x1080", 9.2),
+    ("huawei", "mate pro", "2560x1440", 14.2)
+  )
+
+  val phonesDF = phones.toDF("make","model","screen_dim","camera_mp")
+  phonesDF.printSchema()
+  phonesDF.show()
+
+  // Ex2
+  val moviesDF = spark.read
+    .format("json")
+    .option("inferSchema", "true")
+    .load("src/main/resources/data/movies.json")
+
+  moviesDF.show()
+  moviesDF.printSchema()
+  println(s"Row count: ${moviesDF.count()}")
+
+
 }
