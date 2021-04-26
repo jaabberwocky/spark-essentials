@@ -99,5 +99,17 @@ object DataSources extends App {
     .option("dateFormat", "MMM dd yyyy")
     .option("header","true")
     .option("sep",",")
+    .option("nullValue", "") // no notion of null in CSV
+    .load("src/main/resources/data/stocks.csv")
+
+  println("WRITING PARQUET DATAFRAME!")
+  // parquet
+  carsDateDF.write // does not need format as parquet is default
+    .mode(SaveMode.Overwrite)
+    .save("src/main/resources/data/cars.parquet")
+
+  // text files
+  // every line is a separate row under "values" col
+  spark.read.text("src/main/resources/data/sampleTextFile.txt").show()
 
 }
