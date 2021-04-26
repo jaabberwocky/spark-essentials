@@ -112,4 +112,55 @@ object DataSources extends App {
   // every line is a separate row under "values" col
   spark.read.text("src/main/resources/data/sampleTextFile.txt").show()
 
+  // reading from a remote DB
+  spark.read
+    .format("jdbc")
+    .option("driver", "org.postgresql.Driver")
+    .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
+    .option("user", "docker")
+    .option("password", "docker")
+    .option("dbtable", "employees")
+    .load()
+    .show()
+
+
+  /*
+  * Exercise: Read the movie json as a dataframe, then write it as
+  * - a tab-separated values file (csv)
+  * - snappy parquet
+  * - write the movies dataframe as a postgres table (public.movies)
+  * */
+
+  val moviesDF = spark.read
+    .format("json")
+    .option("inferSchema", "true")
+    .option("path", "src/main/resources/data/movies.json")
+    .load()
+
+  moviesDF.show()
+
+  //TSV
+  moviesDF.write
+    .format("csv")
+    .option("sep", "\t")
+    .option("path", "src/main/resources/data/movies_tab.csv")
+    .mode(SaveMode.Overwrite)
+    .save()
+
+  //Parquet
+  moviesDF.write
+    .format("parquet")
+    .mode(SaveMode.Overwrite)
+    .option("path", "src/main/resources/data/movies.parquet")
+    .save()
+
+  //Write DB
+  moviesDF.write
+    .format("jdbc")
+    .option("driver", "org.postgresql.Driver")
+    .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
+    .option("user", "docker")
+    .option("password", "docker")
+    .option("dbtable", "movies")
+    .save()
 }
