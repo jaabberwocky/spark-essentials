@@ -1,7 +1,7 @@
 package part2dataframes
 
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SparkSession}
-import org.apache.spark.sql.types.{DoubleType, LongType, StringType, StructField, StructType}
 
 
 object DataFrameBasics extends App {
@@ -127,6 +127,5 @@ object DataFrameBasics extends App {
   moviesDF.show()
   moviesDF.printSchema()
   println(s"Row count: ${moviesDF.count()}")
-
 
 }
