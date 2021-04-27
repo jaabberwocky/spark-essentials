@@ -93,7 +93,7 @@ object ColumnsAndExpression extends App {
     .orderBy(col("Horsepower").desc) // sort in descending order
   americanPowerfulCarsDF3.show()
 
-  // unioning = adding more rows
+  // union-ing = adding more rows
   val moreCarsDF = spark.read
     .option("inferSchema", "true")
     .json("src/main/resources/data/more_cars.json")
@@ -103,5 +103,57 @@ object ColumnsAndExpression extends App {
   // distinct values
   val allCountriesDF = carsDF.select("Origin").distinct()
   allCountriesDF.show()
+
+  /*
+  * Exercises
+  *
+  * 1. Read the movies json file and select 2 columns of your choice.
+  * 2. Create a new DF by summing up all the gross profits of the movie (US GROSS + US DVD SALES + WORLDWIDE GROSS)
+  * 3. Select all movies which are "comedy" in genre with IMDB rating above 6
+  *
+  * Use as many versions/ways as possible.
+  *
+  * */
+
+  // Ex1
+  val moviesDF = spark.read
+    .format("json")
+    .option("inferSchema","true")
+    .option("path", "src/main/resources/data/movies.json")
+    .load()
+
+  val moviesDFTwoCols1 = moviesDF.select(
+    col("Title"),
+    col("Production_Budget")
+  )
+
+  val moviesDFTwoCols2 = moviesDF.selectExpr("Title", "Worldwide_Gross")
+
+  val moviesDFTwoCols3 = moviesDF.select(
+    moviesDF.col("Title"),
+    moviesDF.col("Worldwide_Gross")
+  )
+
+  moviesDFTwoCols1.show()
+  moviesDFTwoCols2.show()
+  moviesDFTwoCols3.show()
+
+  // Ex2
+  val grossProfitsDF1 = moviesDF.selectExpr(
+    "Title",
+    "US_Gross + Worldwide_Gross + coalesce(US_DVD_Sales,0) as Gross_Profits" // need coalesce since presence of nulls
+  )
+
+  grossProfitsDF1.show()
+
+  // Ex3
+  val comedyIMDB6_DF1 = moviesDF.selectExpr(
+    "Title",
+    "Major_Genre",
+    "IMDB_Rating"
+  ).filter(col("Major_Genre") === "Comedy" and col("IMDB_Rating") > 6)
+    .orderBy(col("IMDB_Rating").desc)
+
+  comedyIMDB6_DF1.show()
 
 }
